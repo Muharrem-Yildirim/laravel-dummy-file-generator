@@ -26,10 +26,10 @@ class FileGeneratorControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_can_not_generate_file_if_file_size_is_bigger_than_2gb(): void
+    public function test_can_not_generate_file_if_file_size_is_bigger_than_5gb(): void
     {
         $response = $this->postJson(route('generator.store'), [
-            'file_size' => 2147483649
+            'file_size' => 5368709120 + 1
         ]);
 
         $response->assertStatus(422);
