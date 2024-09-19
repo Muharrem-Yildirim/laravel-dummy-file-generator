@@ -2,11 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Jobs\CreateFile;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Jobs\CreateFileJob;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CreateFileJobUnitTest extends TestCase
@@ -15,8 +12,8 @@ class CreateFileJobUnitTest extends TestCase
     {
         Queue::fake();
 
-        dispatch(new CreateFile(0, 'test.txt'));
+        dispatch(new CreateFileJob(0, 'test.txt'));
 
-        Queue::assertPushed(CreateFile::class);
+        Queue::assertPushed(CreateFileJob::class);
     }
 }

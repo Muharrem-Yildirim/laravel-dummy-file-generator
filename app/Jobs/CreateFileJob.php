@@ -3,8 +3,9 @@
 namespace App\Jobs;
 
 use App\Enums\FileGenerationStatus;
+use App\Events\FileGeneratedEvent;
+use App\Events\FileNotGeneratedEvent;
 use App\Services\FileDataGenerator;
-use Exception;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -13,7 +14,7 @@ use Imtigger\LaravelJobStatus\Trackable;
 use Throwable;
 use Illuminate\Support\Str;
 
-class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable, Trackable;
 
@@ -24,7 +25,7 @@ class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
     /**
      * Create a new job instance.
      */
-    public function __construct(private $fileSize = 0, private $fileName = '')
+    public function __construct(private $fileSize = 0, private $fileName = '', private $sessionId = null)
     {
         $this->prepareStatus();
 
@@ -55,12 +56,18 @@ class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
         $this->setOutput([FileGenerationStatus::SUCCESS]);
 
+        if ($this->sessionId != null)
+            event(new FileGeneratedEvent($this->sessionId));
+
         return 0;
     }
 
     public function failed(Throwable $e): void
     {
         $this->setOutput([FileGenerationStatus::FAIL]);
+
+        if ($this->sessionId != null)
+            event(new FileNotGeneratedEvent($this->sessionId));
 
         throw $e;
     }
