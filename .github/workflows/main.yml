@@ -87,5 +87,5 @@ jobs:
             chmod -R 777 storage bootstrap/cache
 
             echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
-            docker compose up -d
+            ./vendor/bin/sail up -d
           EOF
