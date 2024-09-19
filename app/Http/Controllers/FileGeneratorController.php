@@ -3,20 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FileGenerateRequest;
+use App\Http\Resources\FileGenerator\GenerateResource as FileGeneratorGenerateResource;
+use App\Http\Resources\FileGenerator\ShowResource;
+use App\Http\Resources\GenerateResource;
 use App\Jobs\CreateFile;
+use Imtigger\LaravelJobStatus\JobStatus;
 
 class FileGeneratorController extends Controller
 {
 
-    public function generate(FileGenerateRequest $request)
+    public function store(FileGenerateRequest $request)
     {
         $job = new CreateFile($request->file_size, $request->file_name);
-        $id = dispatch($job);
-        return response()->json(['success' => true, 'job' => $id->getJobId()], 200);
+        $jobId = custom_dispatch($job);
+
+        return FileGeneratorGenerateResource::make(['jobId' => $jobId]);
     }
 
     public function show($jobId)
     {
-        return response()->download(storage_path('app/public/' . $fileName), $fileName);
+        $jobStatus = JobStatus::whereJobId($jobId)->firstOrFail();
+
+        return ShowResource::make($jobStatus);
     }
 }

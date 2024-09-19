@@ -7,3 +7,8 @@ function format_bytes($bytes, $decimals = 2)
 
     return sprintf("%.{$decimals}f %s", $bytes / pow(1024, $factor), $units[$factor]);
 }
+
+function custom_dispatch($job): int|string
+{
+    return app(\Illuminate\Contracts\Bus\Dispatcher::class)->dispatch($job);
+}

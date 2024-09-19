@@ -9,5 +9,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('file')->group(function () {
-    Route::post('generate', [FileGeneratorController::class, 'generate']);
-});
+    Route::resource('generator', FileGeneratorController::class)->only(['store', 'show']);
+})
+    ->name('file.');
