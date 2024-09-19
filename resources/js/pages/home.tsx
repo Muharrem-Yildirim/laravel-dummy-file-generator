@@ -97,7 +97,7 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
             <Toaster />
 
             <div className="flex justify-center items-center gap-4 w-full min-h-[100vh] h-full">
-                <Card className="w-1/3 gap-2">
+                <Card className="lg:w-1/3 w-full m-4 lg:m-0 gap-2">
                     <CardHeader>
                         <CardTitle className="text-xl">
                             Generate Dummy File
