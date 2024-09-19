@@ -14,12 +14,11 @@ class FileGenerateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file_size' => ['required', 'integer', 'between:1,1000000000', function ($attribute, $value, $fail) {
+            'file_size' => ['required', 'integer', 'between:1,2147483648', function ($attribute, $value, $fail) {
                 if ($value % 1024 != 0) {
                     $fail('The file size must be a multiple of 1024');
                 }
             }],
-            // 'file_name' => ['required', 'string', 'max:255'],
         ];
     }
 }
