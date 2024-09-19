@@ -2,4 +2,6 @@ import axios from "axios";
 
 export default axios.create({
     withCredentials: true,
+    baseURL: import.meta.env.VITE_APP_URL,
 });
+console.log(import.meta.env);
