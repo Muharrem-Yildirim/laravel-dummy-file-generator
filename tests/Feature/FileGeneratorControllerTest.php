@@ -2,10 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\CreateFile;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class FileGeneratorControllerTest extends TestCase
