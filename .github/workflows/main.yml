@@ -83,6 +83,6 @@ jobs:
             echo "Setting Directory Permissions:"
             chmod -R 777 storage bootstrap/cache
 
-            echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
-            ./vendor/bin/sail up -d && ./vendor/bin/sail artisan migrate --force
+            echo "Sail up & run migrations"
+            ./vendor/bin/sail up -d && sleep 2s && ./vendor/bin/sail artisan migrate --force
           EOF
