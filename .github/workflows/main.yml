@@ -83,9 +83,6 @@ jobs:
             echo "Running Migrations:"
             ./vendor/bin/sail artisan migrate
 
-            echo "Generating Application Key:"
-            /usr/bin/php8.3 artisan key:generate
-
             echo "Setting Directory Permissions:"
             chmod -R 777 storage bootstrap/cache
 
