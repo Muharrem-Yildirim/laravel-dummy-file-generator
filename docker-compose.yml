@@ -25,6 +25,8 @@ services:
         depends_on:
             - mariadb
             - redis
+        command: >
+            sh -c "composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader"
     mariadb:
         image: "mariadb:11"
         ports:
