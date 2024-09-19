@@ -4,6 +4,10 @@ use Illuminate\Support\Str;
 
 return [
 
+    /* BASIC AUTHENTICATION FOR HORIZON */
+    'user' => env('HORIZON_USER'),
+    'password' => env('HORIZON_PASSWORD'),
+
     /*
     |--------------------------------------------------------------------------
     | Horizon Domain
@@ -56,7 +60,7 @@ return [
 
     'prefix' => env(
         'HORIZON_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
+        Str::slug(env('APP_NAME', 'laravel'), '_') . '_horizon:'
     ),
 
     /*
@@ -70,7 +74,7 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => ['web', \App\Http\Middleware\HorizonBasicAuth::class],
 
     /*
     |--------------------------------------------------------------------------
