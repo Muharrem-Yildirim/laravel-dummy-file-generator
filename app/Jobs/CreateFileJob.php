@@ -18,7 +18,7 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable, Trackable;
 
-    protected $timeout = 300;
+    protected $timeout = 500;
 
     protected $tries = 1;
 
