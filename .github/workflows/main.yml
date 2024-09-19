@@ -36,59 +36,59 @@ jobs:
         run: chmod -R 777 storage bootstrap/cache
       - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
         run: php artisan test
-    deploy:
-      runs-on: ubuntu-latest
-      needs: tests
+  deploy:
+    runs-on: ubuntu-latest
+    needs: tests
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-        - name: Set up SSH
-          uses: webfactory/ssh-agent@v0.5.4
-          with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-        - name: Deploy to server
-          env:
-            SERVER_IP: ${{ secrets.SERVER_IP }}
-            SSH_USER: ${{ secrets.SSH_USER }}
-            PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
-          run: |
-            ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << EOF
-              echo "Current Directory:"
-              pwd
-              echo "Listing Directory Contents:"
-              ls -la
-              echo "Changing Directory to the project path:"
-              cd $PROJECT_PATH || exit
-              echo "Current Directory After cd:"
-              pwd
+      - name: Deploy to server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << EOF
+            echo "Current Directory:"
+            pwd
+            echo "Listing Directory Contents:"
+            ls -la
+            echo "Changing Directory to the project path:"
+            cd $PROJECT_PATH || exit
+            echo "Current Directory After cd:"
+            pwd
 
-              echo "Pulling Latest Code:"
-              git pull origin main
+            echo "Pulling Latest Code:"
+            git pull origin main
 
-              echo "Stopping Docker Containers:"
-              docker compose down
+            echo "Stopping Docker Containers:"
+            docker compose down
 
-              echo "Installing PHP Dependencies:"
-              /usr/bin/php8.3 /usr/local/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            echo "Installing PHP Dependencies:"
+            /usr/bin/php8.3 /usr/local/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-              echo "Installing Node Modules:"
-              npm install
+            echo "Installing Node Modules:"
+            npm install
 
-              echo "Building Vite:"
-              npm run build
+            echo "Building Vite:"
+            npm run build
 
-              echo "Running Migrations:"
-              /usr/bin/php8.3 artisan migrate
+            echo "Running Migrations:"
+            /usr/bin/php8.3 artisan migrate
 
-              echo "Generating Application Key:"
-              /usr/bin/php8.3 artisan key:generate
+            echo "Generating Application Key:"
+            /usr/bin/php8.3 artisan key:generate
 
-              echo "Setting Directory Permissions:"
-              chmod -R 777 storage bootstrap/cache
+            echo "Setting Directory Permissions:"
+            chmod -R 777 storage bootstrap/cache
 
-              echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
-              docker compose up -d
-            EOF
+            echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
+            docker compose up -d
+          EOF
