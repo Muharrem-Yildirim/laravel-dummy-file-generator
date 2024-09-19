@@ -3,9 +3,50 @@ import { useEffect, useState } from "react";
 import Echo from "laravel-echo";
 import { Button } from "@/components/ui/button";
 import axios from "@/lib/axios";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 
 export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
     const [loading, setLoading] = useState(true);
+    const [input, setInput] = useState({
+        size: 1,
+        multiplier: 1024,
+    });
+    const multipliers = [
+        // {
+        //     value: 1,
+        //     label: "bytes",
+        // },
+        {
+            value: 1024,
+            label: "KB",
+        },
+        {
+            value: 1024 * 1024,
+            label: "MB",
+        },
+        {
+            value: 1024 * 1024 * 1024,
+            label: "GB",
+        },
+    ];
 
     useEffect(() => {
         const echo = new Echo({
@@ -24,11 +65,22 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
                 console.log(e);
                 setLoading(false);
 
+                toast({
+                    title: "Success",
+                    description: "File generated successfully.",
+                });
+
                 window.location.href = e.downloadUrl;
             })
             .listen(".file-could-not-generated", (e: any) => {
                 console.log(e);
                 setLoading(false);
+
+                toast({
+                    title: "Error",
+                    description: "File could not generated.",
+                    variant: "destructive",
+                });
             });
 
         return () => {
@@ -36,26 +88,96 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
         };
     }, [sessionId]);
 
+    const { toast } = useToast();
+
     return (
         <>
-            <Button
-                onClick={() => {
-                    setLoading(true);
-                    axios
-                        .post(
-                            route("generator.store", {
-                                file_size: 1024 * 1024 * 1000,
-                                session_id: sessionId,
-                            })
-                        )
-                        .catch((e) => {
-                            setLoading(false);
-                        });
-                }}
-                disabled={loading}
-            >
-                Generate
-            </Button>
+            <Toaster />
+
+            <div className="flex justify-center items-center gap-4 w-full min-h-[100vh] h-full">
+                <Card className="w-1/3 gap-2">
+                    <CardHeader>
+                        <CardTitle className="text-xl">
+                            Generate Dummy File
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div>
+                            <Label htmlFor="file_size">File Size</Label>
+                            <Input
+                                id="file_size"
+                                value={input.size}
+                                onChange={(e) =>
+                                    setInput({
+                                        ...input,
+                                        size: parseInt(e.target.value),
+                                    })
+                                }
+                                type="number"
+                                disabled={loading}
+                                placeholder="File size"
+                            />
+                        </div>
+                        <div className="mt-4">
+                            <Label>File Unit</Label>
+                            <Select
+                                value={input.multiplier.toString()}
+                                onValueChange={(value) =>
+                                    setInput({
+                                        ...input,
+                                        multiplier: parseInt(value),
+                                    })
+                                }
+                                disabled={loading}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Please select" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {multipliers.map((multiplier) => (
+                                        <SelectItem
+                                            key={multiplier.value}
+                                            value={multiplier.value.toString()}
+                                        >
+                                            {multiplier.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="justify-end">
+                        <Button
+                            onClick={() => {
+                                setLoading(true);
+
+                                console.log({
+                                    file_size: input.size * input.multiplier,
+                                    session_id: sessionId,
+                                });
+                                axios
+                                    .post(
+                                        route("generator.store", {
+                                            file_size:
+                                                input.size * input.multiplier,
+                                            session_id: sessionId,
+                                        })
+                                    )
+                                    .catch((e) => {
+                                        setLoading(false);
+                                    });
+                            }}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                "Generate File"
+                            )}
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
         </>
     );
 }

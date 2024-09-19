@@ -43,7 +43,7 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     {
         if (
             Storage::disk('generated_files')->exists($this->fileName) &&
-            Storage::disk('generated_files')->size($this->fileName) === $this->fileSize
+            Storage::disk('generated_files')->size($this->fileName) === intval($this->fileSize)
         ) {
             $this->setOutput([FileGenerationStatus::EXISTS, FileGenerationStatus::SUCCESS]);
 
@@ -70,8 +70,9 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     {
         $this->setOutput([FileGenerationStatus::FAIL]);
 
-        if ($this->sessionId != null)
+        if ($this->sessionId != null) {
             event(new FileCouldNotGenerated($this->sessionId));
+        }
 
         throw $e;
     }
