@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\FileGenerationStatus;
 use App\Services\FileDataGenerator;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -15,6 +16,10 @@ use Illuminate\Support\Str;
 class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable, Trackable;
+
+    protected $timeout = 300;
+
+    protected $tries = 1;
 
     /**
      * Create a new job instance.
@@ -35,7 +40,10 @@ class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
      */
     public function handle(FileDataGenerator $fileDataGenerator)
     {
-        if (Storage::disk('generated_files')->exists($this->fileName)) {
+        if (
+            Storage::disk('generated_files')->exists($this->fileName) &&
+            Storage::disk('generated_files')->size($this->fileName) === $this->fileSize
+        ) {
             $this->setOutput([FileGenerationStatus::EXISTS, FileGenerationStatus::SUCCESS]);
             return 0;
         }
