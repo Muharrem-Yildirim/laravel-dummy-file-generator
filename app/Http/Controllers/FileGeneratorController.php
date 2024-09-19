@@ -13,10 +13,10 @@ class FileGeneratorController extends Controller
 
     public function store(FileGenerateRequest $request)
     {
-        $job = new CreateFileJob($request->file_size, $request->file_name);
+        $job = new CreateFileJob($request->file_size, $request->file_name, session()->getId());
         $jobId = custom_dispatch($job);
 
-        return FileGeneratorGenerateResource::make(['jobId' => $jobId]);
+        return FileGeneratorGenerateResource::make(['jobId' => $jobId, 'sessionId' => $job->sessionId]);
     }
 
     public function show($jobId)

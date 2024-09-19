@@ -16,7 +16,8 @@ class GenerateResource extends JsonResource
     {
         return [
             'success' => true,
-            'job' => $this['jobId']
+            'job' => $this['jobId'],
+            'session' => $this['sessionId']
         ];
     }
 }

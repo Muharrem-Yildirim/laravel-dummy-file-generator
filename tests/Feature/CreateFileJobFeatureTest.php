@@ -3,9 +3,15 @@
 namespace Tests\Feature;
 
 use App\Enums\FileGenerationStatus;
+use App\Events\FileGeneratedEvent;
+use App\Events\FileNotGeneratedEvent;
 use App\Jobs\CreateFileJob;
 use App\Services\FileDataGenerator;
+use Exception;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Storage;
 use Imtigger\LaravelJobStatus\JobStatus;
@@ -21,6 +27,8 @@ class CreateFileJobFeatureTest extends TestCase
         parent::setUp();
 
         Storage::fake('generated_files');
+        Event::fake();
+
 
         $this->filePath = Storage::disk('generated_files')->path($this->fileName);
     }
@@ -33,6 +41,29 @@ class CreateFileJobFeatureTest extends TestCase
         $this->assertFileExists($this->filePath);
 
         $job->assertNotFailed();
+    }
+
+    public function test_job_dispatched_success_event(): void
+    {
+        $job = (new CreateFileJob(0, $this->fileName, session()->getId()))->withFakeQueueInteractions();
+        $job->handle(app(FileDataGenerator::class));
+
+        Event::assertDispatched(FileGeneratedEvent::class);
+    }
+
+    public function test_job_dispatched_failed_event(): void
+    {
+        $job = (new CreateFileJob(1, $this->fileName, session()->getId()))->withFakeQueueInteractions();
+
+        try {
+            $job->fail();
+            $job->failed(new Exception('File could not generated.'));
+        } catch (Exception $e) {
+        }
+
+        $job->assertFailed();
+
+        Event::assertDispatched(FileNotGeneratedEvent::class);
     }
 
     #[DataProvider('createFileDataProvider')]

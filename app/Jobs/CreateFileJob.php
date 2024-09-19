@@ -25,7 +25,7 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     /**
      * Create a new job instance.
      */
-    public function __construct(private $fileSize = 0, private $fileName = '', private $sessionId = null)
+    public function __construct(private $fileSize = 0, private $fileName = '', public $sessionId = null)
     {
         $this->prepareStatus();
 
