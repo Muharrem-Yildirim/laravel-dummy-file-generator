@@ -72,7 +72,7 @@ jobs:
             docker compose down
 
             echo "Installing PHP Dependencies:"
-            /usr/bin/php8.3 /usr/local/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            /usr/bin/php8.3 /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
             echo "Installing Node Modules:"
             npm install
