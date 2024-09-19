@@ -43,7 +43,7 @@ class DeleteOldFilesJobTest extends TestCase
         $this->assertFileDoesNotExist($this->testFilePath);
     }
 
-    public function test_not_deletes_files_that_are_not_old(): void
+    public function test_not_deletes_files_that_are_not_older_than_3_days(): void
     {
         $this->testFilePath = Storage::disk('generated_files')->path('test.txt');
 
