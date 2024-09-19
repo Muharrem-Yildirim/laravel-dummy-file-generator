@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { Head } from "@inertiajs/react";
 
 export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
     const [loading, setLoading] = useState(true);
@@ -92,6 +93,7 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
 
     return (
         <>
+            <Head title="Home" />
             <Toaster />
 
             <div className="flex justify-center items-center gap-4 w-full min-h-[100vh] h-full">
