@@ -81,7 +81,7 @@ jobs:
             npm run build
 
             echo "Running Migrations:"
-            /usr/bin/php8.3 artisan migrate
+            /usr/bin/php8.3 ./vendor/bin/sail artisan migrate
 
             echo "Generating Application Key:"
             /usr/bin/php8.3 artisan key:generate
