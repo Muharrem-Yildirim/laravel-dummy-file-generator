@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\FileGenerationStatus;
 use App\Events\FileGeneratedEvent;
-use App\Events\FileNotGeneratedEvent;
+use App\Events\FileCouldNotGenerated;
 use App\Services\FileDataGenerator;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,6 +46,10 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
             Storage::disk('generated_files')->size($this->fileName) === $this->fileSize
         ) {
             $this->setOutput([FileGenerationStatus::EXISTS, FileGenerationStatus::SUCCESS]);
+
+            if ($this->sessionId != null)
+                event(new FileGeneratedEvent($this->sessionId, $this->fileName));
+
             return 0;
         }
 
@@ -57,7 +61,7 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
         $this->setOutput([FileGenerationStatus::SUCCESS]);
 
         if ($this->sessionId != null)
-            event(new FileGeneratedEvent($this->sessionId));
+            event(new FileGeneratedEvent($this->sessionId, $this->fileName));
 
         return 0;
     }
@@ -67,10 +71,11 @@ class CreateFileJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
         $this->setOutput([FileGenerationStatus::FAIL]);
 
         if ($this->sessionId != null)
-            event(new FileNotGeneratedEvent($this->sessionId));
+            event(new FileCouldNotGenerated($this->sessionId));
 
         throw $e;
     }
+
 
     public function uniqueId(): string
     {

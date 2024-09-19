@@ -5,19 +5,19 @@ namespace App\Events;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class FileGeneratedEvent
+class FileGeneratedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(private $sessionId = null)
+    public function __construct(private $sessionId = null, private $fileName = null)
     {
         //
     }
@@ -30,7 +30,17 @@ class FileGeneratedEvent
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("Session.$this->sessionId"),
+            new Channel("Session.$this->sessionId"),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'file-generated';
+    }
+
+    public function broadcastWith(): array
+    {
+        return ['downloadUrl' => route('file.download', $this->fileName)];
     }
 }

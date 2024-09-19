@@ -6,14 +6,15 @@ use App\Http\Requests\FileGenerateRequest;
 use App\Http\Resources\FileGenerator\GenerateResource as FileGeneratorGenerateResource;
 use App\Http\Resources\FileGenerator\ShowResource;
 use App\Jobs\CreateFileJob;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Storage;
 use Imtigger\LaravelJobStatus\JobStatus;
 
 class FileGeneratorController extends Controller
 {
-
     public function store(FileGenerateRequest $request)
     {
-        $job = new CreateFileJob($request->file_size, $request->file_name, session()->getId());
+        $job = new CreateFileJob($request->file_size, $request->file_name, $request->session_id ?? session()->getId());
         $jobId = custom_dispatch($job);
 
         return FileGeneratorGenerateResource::make(['jobId' => $jobId, 'sessionId' => $job->sessionId]);
@@ -24,5 +25,10 @@ class FileGeneratorController extends Controller
         $jobStatus = JobStatus::whereJobId($jobId)->firstOrFail();
 
         return ShowResource::make($jobStatus);
+    }
+
+    public function download($fileName)
+    {
+        return response()->download(Storage::disk('generated_files')->path($fileName), $fileName);
     }
 }

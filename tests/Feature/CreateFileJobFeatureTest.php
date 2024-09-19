@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\FileGenerationStatus;
 use App\Events\FileGeneratedEvent;
-use App\Events\FileNotGeneratedEvent;
+use App\Events\FileCouldNotGenerated;
 use App\Jobs\CreateFileJob;
 use App\Services\FileDataGenerator;
 use Exception;
@@ -63,7 +63,7 @@ class CreateFileJobFeatureTest extends TestCase
 
         $job->assertFailed();
 
-        Event::assertDispatched(FileNotGeneratedEvent::class);
+        Event::assertDispatched(FileCouldNotGenerated::class);
     }
 
     #[DataProvider('createFileDataProvider')]

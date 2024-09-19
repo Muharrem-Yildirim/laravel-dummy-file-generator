@@ -10,5 +10,6 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('file')->group(function () {
     Route::resource('generator', FileGeneratorController::class)->only(['store', 'show']);
+    Route::get('/download/{fileName}', [FileGeneratorController::class, 'download'])->name('file.download');
 })
     ->name('file.');
