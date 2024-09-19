@@ -1,91 +1,91 @@
 name: tests & deployment
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+    tests:
+        runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.2, 8.3]
+        strategy:
+            fail-fast: true
+            matrix:
+                php: [8.2, 8.3]
 
-    steps:
-      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
-        with:
-          php-version: ${{ matrix.php }}
-      - uses: actions/checkout@v4
-      - name: Copy .env
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Install node modules
-        run: npm install
-      - name: Build vite
-        run: npm run build
-      - name: Run migrations
-        run: php artisan migrate
-      - name: Generate key
-        run: php artisan key:generate --env=testing
-      - name: Directory Permissions
-        run: chmod -R 777 storage bootstrap/cache
-      - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
-        run: php artisan test
-  deploy:
-    runs-on: ubuntu-latest
-    needs: tests
+        steps:
+            - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+              with:
+                  php-version: ${{ matrix.php }}
+            - uses: actions/checkout@v4
+            - name: Copy .env
+              run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+            - name: Install Dependencies
+              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            - name: Install node modules
+              run: npm install
+            - name: Build vite
+              run: npm run build
+            - name: Run migrations
+              run: php artisan migrate
+            - name: Generate key
+              run: php artisan key:generate --env=testing
+            - name: Directory Permissions
+              run: chmod -R 777 storage bootstrap/cache
+            - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+              run: php artisan test
+    deploy:
+        runs-on: ubuntu-latest
+        needs: tests
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            - name: Set up SSH
+              uses: webfactory/ssh-agent@v0.5.4
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy to server
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << EOF
-            echo "Current Directory:"
-            pwd
-            echo "Listing Directory Contents:"
-            ls -la
-            echo "Changing Directory to the project path:"
-            cd $PROJECT_PATH || exit
-            echo "Current Directory After cd:"
-            pwd
+            - name: Deploy to server
+              env:
+                  SERVER_IP: ${{ secrets.SERVER_IP }}
+                  SSH_USER: ${{ secrets.SSH_USER }}
+                  PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+              run: |
+                  ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << EOF
+                    echo "Current Directory:"
+                    pwd
+                    echo "Listing Directory Contents:"
+                    ls -la
+                    echo "Changing Directory to the project path:"
+                    cd $PROJECT_PATH || exit
+                    echo "Current Directory After cd:"
+                    pwd
 
-            echo "Pulling Latest Code:"
-            git pull origin main
+                    echo "Pulling Latest Code:"
+                    git pull origin main
 
-            echo "Stopping Docker Containers:"
-            docker compose down
+                    echo "Stopping Docker Containers:"
+                    docker compose down
 
-            echo "Installing PHP Dependencies:"
-            /usr/bin/php8.3 /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+                    echo "Installing PHP Dependencies:"
+                    /usr/bin/php8.3 /usr/bin/composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-            echo "Installing Node Modules:"
-            npm install
+                    echo "Installing Node Modules:"
+                    npm install
 
-            echo "Building Vite:"
-            npm run build
+                    echo "Building Vite:"
+                    npm run build
 
-            echo "Setting Directory Permissions:"
-            chmod -R 777 storage bootstrap/cache
+                    echo "Setting Directory Permissions:"
+                    chmod -R 777 storage bootstrap/cache
 
-            echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
-            ./vendor/bin/sail up -d
+                    echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
+                    ./vendor/bin/sail up -d
 
-            echo "Running Migrations:"
-            ./vendor/bin/sail artisan migrate
-          EOF
+                    echo "Running Migrations:"
+                    ./vendor/bin/sail artisan migrate --force
+                  EOF
