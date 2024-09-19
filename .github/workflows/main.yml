@@ -80,12 +80,12 @@ jobs:
             echo "Building Vite:"
             npm run build
 
-            echo "Running Migrations:"
-            ./vendor/bin/sail artisan migrate
-
             echo "Setting Directory Permissions:"
             chmod -R 777 storage bootstrap/cache
 
             echo "Running Tests (Unit and Feature tests) via PHPUnit/Pest:"
             ./vendor/bin/sail up -d
+
+            echo "Running Migrations:"
+            ./vendor/bin/sail artisan migrate
           EOF
