@@ -153,19 +153,18 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
                             onClick={() => {
                                 setLoading(true);
 
-                                console.log({
-                                    file_size: input.size * input.multiplier,
-                                    session_id: sessionId,
-                                });
                                 axios
-                                    .post(
-                                        route("generator.store", {
-                                            file_size:
-                                                input.size * input.multiplier,
-                                            session_id: sessionId,
-                                        })
-                                    )
+                                    .post(route("generator.store", {}, false), {
+                                        file_size:
+                                            input.size * input.multiplier,
+                                        session_id: sessionId,
+                                    })
                                     .catch((e) => {
+                                        toast({
+                                            title: "Error",
+                                            description: e.message,
+                                            variant: "destructive",
+                                        });
                                         setLoading(false);
                                     });
                             }}
