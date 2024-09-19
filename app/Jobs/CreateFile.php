@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\FileGenerationStatus;
 use App\Services\FileDataGenerator;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,7 @@ use Imtigger\LaravelJobStatus\Trackable;
 use Throwable;
 use Illuminate\Support\Str;
 
-class CreateFile implements ShouldQueue
+class CreateFile implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable, Trackable;
 
@@ -25,6 +26,8 @@ class CreateFile implements ShouldQueue
         if (empty($this->fileName)) {
             $this->fileName = Str::replace(' ', '_', format_bytes($this->fileSize) . '.txt');
         }
+
+        $this->setOutput([FileGenerationStatus::PENDING]);
     }
 
     /**
@@ -52,5 +55,10 @@ class CreateFile implements ShouldQueue
         $this->setOutput([FileGenerationStatus::FAIL]);
 
         throw $e;
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->fileName;
     }
 }
