@@ -14,6 +14,8 @@ class DeleteOldFilesJob implements ShouldQueue
 {
     use Queueable;
 
+    protected $tries = 3;
+
     /**
      * Create a new job instance.
      */
