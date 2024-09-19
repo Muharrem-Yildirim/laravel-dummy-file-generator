@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\FileGenerationStatus;
 use App\Jobs\CreateFile;
 use App\Services\FileDataGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Storage;
+use Imtigger\LaravelJobStatus\JobStatus;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class CreateFileJobFeatureTest extends TestCase
@@ -44,6 +46,21 @@ class CreateFileJobFeatureTest extends TestCase
         $job->handle(app(FileDataGenerator::class));
 
         $this->assertEquals(File::size($this->filePath) === $size, true, "File size should be $size bytes");
+    }
+
+    public function test_should_not_generate_same_file(): void
+    {
+        $job = (new CreateFile($this->fileName, 1024))->withFakeQueueInteractions();
+        $job->handle(app(FileDataGenerator::class));
+
+        $jobStatus = JobStatus::whereKey($job->getJobStatusId())->firstOrFail();
+
+        $this->assertContains(FileGenerationStatus::SUCCESS->value, $jobStatus->output);
+
+        $job->handle(app(FileDataGenerator::class));
+        $jobStatus->refresh();
+
+        $this->assertContains(FileGenerationStatus::EXISTS->value, $jobStatus->output);
     }
 
     public static function createFileDataProvider(): array
