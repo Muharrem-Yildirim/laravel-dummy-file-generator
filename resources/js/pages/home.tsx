@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { Head } from "@inertiajs/react";
+import { AxiosError } from "axios";
 
 export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
     const [loading, setLoading] = useState(true);
@@ -159,10 +160,20 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
                                             input.size * input.multiplier,
                                         session_id: sessionId,
                                     })
+                                    .then(() => {
+                                        toast({
+                                            title: "Generating..",
+                                            description:
+                                                "Your file is generating please wait..",
+                                        });
+                                    })
                                     .catch((e) => {
                                         toast({
                                             title: "Error",
-                                            description: e.message,
+                                            description:
+                                                e instanceof AxiosError
+                                                    ? e.response?.data.message
+                                                    : e.message,
                                             variant: "destructive",
                                         });
                                         setLoading(false);
