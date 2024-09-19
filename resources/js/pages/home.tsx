@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import axios from "@/lib/axios";
 
 export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const echo = new Echo({
@@ -17,6 +17,9 @@ export default function Home({ sessionId }: PageProps<{ sessionId: string }>) {
         });
 
         echo.channel(`Session.${sessionId}`)
+            .subscribed(() => {
+                setLoading(false);
+            })
             .listen(".file-generated", (e: any) => {
                 console.log(e);
                 setLoading(false);
