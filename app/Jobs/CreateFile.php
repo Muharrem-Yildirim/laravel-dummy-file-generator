@@ -5,11 +5,11 @@ namespace App\Jobs;
 use App\Enums\FileGenerationStatus;
 use App\Services\FileDataGenerator;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 use Imtigger\LaravelJobStatus\Trackable;
 use Throwable;
+use Illuminate\Support\Str;
 
 class CreateFile implements ShouldQueue
 {
@@ -23,7 +23,7 @@ class CreateFile implements ShouldQueue
         $this->prepareStatus();
 
         if (empty($this->fileName)) {
-            $this->fileName = format_bytes($this->fileSize) . '.txt';
+            $this->fileName = Str::replace(' ', '_', format_bytes($this->fileSize) . '.txt');
         }
     }
 
