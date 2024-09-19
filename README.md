@@ -1,3 +1,3 @@
 # Laravel Dummy File Generator
 
-[![tests](https://github.com/Muharrem-Yildirim/laravel-dummy-file-generator/actions/workflows/run-tests.yml/badge.svg)](https://github.com/Muharrem-Yildirim/laravel-dummy-file-generator/actions/workflows/run-tests.yml)
+[![tests & deployment](https://github.com/Muharrem-Yildirim/laravel-dummy-file-generator/actions/workflows/main.yml/badge.svg)](https://github.com/Muharrem-Yildirim/laravel-dummy-file-generator/actions/workflows/main.yml)
