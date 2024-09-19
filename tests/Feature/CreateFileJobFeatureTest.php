@@ -31,7 +31,7 @@ class CreateFileJobFeatureTest extends TestCase
 
     public function test_can_job_create_file(): void
     {
-        $job = (new CreateFile($this->fileName))->withFakeQueueInteractions();
+        $job = (new CreateFile(0, $this->fileName))->withFakeQueueInteractions();
         $job->handle(app(FileDataGenerator::class));
 
         $this->assertFileExists($this->filePath);
@@ -42,7 +42,7 @@ class CreateFileJobFeatureTest extends TestCase
     #[DataProvider('createFileDataProvider')]
     public function test_can_job_create_file_with_correct_size(int $size): void
     {
-        $job = (new CreateFile($this->fileName, $size))->withFakeQueueInteractions();
+        $job = (new CreateFile($size, $this->fileName))->withFakeQueueInteractions();
         $job->handle(app(FileDataGenerator::class));
 
         $this->assertEquals(File::size($this->filePath) === $size, true, "File size should be $size bytes");
@@ -50,7 +50,7 @@ class CreateFileJobFeatureTest extends TestCase
 
     public function test_should_not_generate_same_file(): void
     {
-        $job = (new CreateFile($this->fileName, 1024))->withFakeQueueInteractions();
+        $job = (new CreateFile(1024, $this->fileName))->withFakeQueueInteractions();
         $job->handle(app(FileDataGenerator::class));
 
         $jobStatus = JobStatus::whereKey($job->getJobStatusId())->firstOrFail();

@@ -14,9 +14,8 @@ class CreateFileJobUnitTest extends TestCase
     public function test_job_is_dispatched()
     {
         Queue::fake();
-        Storage::fake('generated_files');
 
-        dispatch(new CreateFile('test.txt'));
+        dispatch(new CreateFile(0, 'test.txt'));
 
         Queue::assertPushed(CreateFile::class);
     }

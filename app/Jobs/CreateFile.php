@@ -18,7 +18,7 @@ class CreateFile implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private $fileName = '', private $fileSize = 0)
+    public function __construct(private $fileSize = 0, private $fileName = '')
     {
         $this->prepareStatus();
 
