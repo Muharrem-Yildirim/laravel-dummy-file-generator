@@ -83,6 +83,6 @@ jobs:
             echo "Setting Directory Permissions:"
             chmod -R 777 storage bootstrap/cache
 
-            echo "Sail up & run migrations"
-            ./vendor/bin/sail up -d && sleep 2s && ./vendor/bin/sail artisan migrate --force
+            echo "Sail up"
+            ./vendor/bin/sail up -d
           EOF

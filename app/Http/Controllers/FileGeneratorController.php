@@ -29,6 +29,14 @@ class FileGeneratorController extends Controller
 
     public function download($fileName)
     {
-        return response()->download(Storage::disk('generated_files')->path($fileName), $fileName);
+        $file = Storage::disk('generated_files')->path($fileName);
+
+        if (!Storage::disk('generated_files')->exists($fileName)) {
+            return response()->json([
+                'message' => 'File not found',
+            ], 404);
+        }
+
+        return response()->download($file, $fileName);
     }
 }
